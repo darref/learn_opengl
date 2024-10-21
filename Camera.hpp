@@ -26,11 +26,12 @@ public:
     float aspectRatio;
     bool firstMouse;
     float lastX, lastY; 
+    GLFWwindow* window;
 
     // Constructor
     Camera(glm::vec3 startPosition, float startYaw, float startPitch, float startRoll,
            float startSpeed, float startTurnSpeed, float startFOV, 
-           float startAspectRatio, float startNear, float startFar) 
+           float startAspectRatio, float startNear, float startFar ,GLFWwindow* window)
         : position(startPosition), 
           front(glm::vec3(0.0f, 0.0f, -1.0f)), // Initialize front vector
           up(glm::vec3(0.0f, 1.0f, 0.0f)),      // Initialize up vector
@@ -45,6 +46,7 @@ public:
           aspectRatio(startAspectRatio) 
     {
         updateCameraVectors(); // Update camera vectors after initialization
+        glfwSetScrollCallback(window, scroll_callback);
     }
 
 
@@ -64,6 +66,7 @@ public:
     void processMouseMovement(float xOffset, float yOffset, float deltaTime);
     void updateCameraVectors();
     void processRightClickView(GLFWwindow* window, float deltaTime);
+    void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
 };
 
 #endif // CAMERA_HPP

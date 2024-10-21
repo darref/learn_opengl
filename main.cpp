@@ -13,6 +13,7 @@
 #include "Skybox.hpp"
 #include "Shaders.h"
 #include "Window.h"
+#include "HeightmapTerrain.hpp"
 
 int initGLEW() {
     // Initialisation de GLEW
@@ -71,8 +72,9 @@ int main() {
 
     Skybox* skybox = new Skybox(glm::vec3(0.0f, 0.0f, 0.0f) , 100000.0f);
     skybox->init("textures/skybox2.png");
+    HeightmapTerrain* terrain = new HeightmapTerrain("heightmaps/mountains.png","heightmaps/mountains.png"  , 1.0f ,200.0f);
     std::vector<Model*> models;
-    for(int i = 0; i < 10; ++i)
+    for(int i = 0; i < 3; ++i)
     {
         models.push_back( new Model(glm::vec3(i*2,0.0f,0.0f)) );
         models.back()->init("textures/barret.png" , "meshes/cube.glb");
@@ -80,7 +82,7 @@ int main() {
         models.back()->setScale(glm::vec3(0.5f,0.5f,0.5f ));
 
     }
-    for(int i = 0; i < 10 ; ++i)
+    for(int i = 0; i < 3; ++i)
     {
         models.push_back( new Model(glm::vec3(i*2,2.0f,0.0f)) );
         models.back()->init("meshes/bodybuilder/bodybuilder.jpeg" , "meshes/bodybuilder/bodybuilder.glb");
@@ -99,6 +101,7 @@ int main() {
         glm::mat4 projection = camera.getProjectionMatrix();
         // Dessiner les cubes
         skybox->draw(shaderProgram, view, projection);
+        terrain->draw(shaderProgram, view, projection);
         for(auto m : models)
         {
             m->animation(fps.deltaTime); // Assurez-vous que cette méthode est implémentée
