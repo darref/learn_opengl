@@ -34,6 +34,9 @@ public:
     void setRotation(glm::vec3 rot);
     void setScale(glm::vec3 sca);
     void setModelMatrix(glm::mat4& matrix);
+    void addPosition(glm::vec3 deltaPos);
+    void addRotation(glm::vec3 deltaPos);
+    void addScale(glm::vec3 deltaPos);
 
     void applyTransformations();
     void loadTexture(const std::string& texturePath);
@@ -50,6 +53,8 @@ protected:
     glm::mat4 matrice;                       // Transformation matrix
     std::vector<float> vertices;             // Vertex data
     std::vector<unsigned int> indices;       // Index data
+    bool spinning  = true;
+    float spinningSpeed = 30.0f;
 
     void resetMatrice();                     // Reset transformation matrix
 };

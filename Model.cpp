@@ -9,6 +9,7 @@
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
+#include <math.h>
 
 
 Model::Model()
@@ -112,6 +113,22 @@ void Model::setPosition(glm::vec3 pos)
 void Model::setRotation(glm::vec3 rot)
 {
     rotation = rot;
+    if(rotation.x > 360)
+        rotation.x = rotation.x - 360;
+    else if (rotation.x < 0)
+        rotation.x = 360 - abs(rotation.x);
+
+    if(rotation.y > 360)
+        rotation.y = rotation.y - 360;
+    else if (rotation.y < 0)
+        rotation.y = 360 - abs(rotation.y);
+
+
+    if(rotation.z > 360)
+        rotation.z = rotation.z - 360;
+    else if (rotation.z < 0)
+        rotation.z = 360 - abs(rotation.z);
+
 }
 
 void Model::setScale(glm::vec3 sca)
@@ -125,7 +142,39 @@ void Model::setModelMatrix(glm::mat4& matrix)
 }
 
 void Model::animation(float deltaTime) {
-    // Animation logic can be added here
+    if(spinning)
+    {
+        addRotation(glm::vec3(0.0f,spinningSpeed*deltaTime , 0.0f));
+    }
+}
+
+// Méthodes pour ajouter à la position, rotation, et échelle
+void Model::addPosition(glm::vec3 deltaPos) {
+    position += deltaPos; 
+}
+
+void Model::addRotation(glm::vec3 deltaRot) {
+    rotation += deltaRot;
+    
+    if(rotation.x > 360)
+        rotation.x = rotation.x - 360;
+    else if (rotation.x < 0)
+        rotation.x = 360 - abs(rotation.x);
+
+    if(rotation.y > 360)
+        rotation.y = rotation.y - 360;
+    else if (rotation.y < 0)
+        rotation.y = 360 - abs(rotation.y);
+
+
+    if(rotation.z > 360)
+        rotation.z = rotation.z - 360;
+    else if (rotation.z < 0)
+        rotation.z = 360 - abs(rotation.z);
+}
+
+void Model::addScale(glm::vec3 deltaScale) {
+    scale += deltaScale;
 }
 
 const std::vector<float>& Model::getVertices() const

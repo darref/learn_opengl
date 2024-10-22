@@ -11,6 +11,11 @@ glm::mat4 Camera::getProjectionMatrix() {
     return glm::perspective(glm::radians(FOV), aspectRatio, nearPlane, farPlane);
 }
 
+void Camera::setAspectRatio(float ar)
+{
+    this->aspectRatio = ar;    
+}
+
 void Camera::moveForward(float deltaTime) {
     position += front * speed * deltaTime;
 }
@@ -129,14 +134,13 @@ void Camera::processRightClickView(GLFWwindow* window, float deltaTime)
     }
 }
 
-void Camera::scroll_callback(GLFWwindow* window, double xoffset, double yoffset) {
-    // xoffset représente le mouvement horizontal de la molette (rarement utilisé)
-    // yoffset représente le mouvement vertical (généralement utilisé pour zoomer/dézoomer)
-    if (yoffset > 0) {
-        std::cout << "Scrolling up!" << std::endl;
-    } else if (yoffset < 0) {
-        std::cout << "Scrolling down!" << std::endl;
-    }
+void Camera::decreaseSpeed()
+{
+    speed = speed < minSpeed ? minSpeed : speed *0.9f;
 }
 
+void Camera::increaseSpeed()
+{
+    speed = speed > maxSpeed ? maxSpeed : speed *1.1f;
+}
 
