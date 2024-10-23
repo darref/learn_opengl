@@ -131,10 +131,10 @@ class Mortar
         // yoffset représente le mouvement vertical (généralement utilisé pour zoomer/dézoomer)
         if (yoffset > 0) {
             std::cout << "Scrolling up!" << std::endl;
-            camera->decreaseSpeed();
+            camera->increaseSpeed();
         } else if (yoffset < 0) {
             std::cout << "Scrolling down!" << std::endl;
-            camera->increaseSpeed();
+            camera->decreaseSpeed();
         }
     }
 
@@ -168,9 +168,9 @@ class Mortar
     {
         skybox = new Skybox(glm::vec3(0.0f, 0.0f, 0.0f) , 100000.0f);
         skybox->init("textures/skybox2.png");
-        terrain = new HeightmapTerrain("heightmaps/mountains.png","heightmaps/mountains.png"  , 1.0f ,200.0f);
+        terrain = new HeightmapTerrain("textures/grid.jpg","heightmaps/mountains.png"  , 1.0f ,200.0f);
         
-        for(int i = 0; i < 20; ++i)
+        for(int i = 0; i < 5; ++i)
         {
             models.push_back( new Model(glm::vec3(i*2,0.0f,0.0f)) );
             models.back()->init("textures/barret.png" , "meshes/cube.glb");
@@ -178,10 +178,10 @@ class Mortar
             models.back()->setScale(glm::vec3(0.5f,0.5f,0.5f ));
 
         }
-        for(int i = 0; i < 30; ++i)
+        for(int i = 0; i < 5; ++i)
         {
             models.push_back( new Model(glm::vec3(i*2,2.0f,0.0f)) );
-            models.back()->init("meshes/bodybuilder/bodybuilder.jpeg" , "meshes/bodybuilder/bodybuilder.glb");
+            models.back()->init("meshes/bodybuilder/bodybuilder.jpg" , "meshes/bodybuilder/bodybuilder.glb");
             //models.back()->setRotation(glm::vec3(-90.0f , 0.0f , 0.0f ));
             //models.back()->setScale(glm::vec3(0.01f,0.01f,0.01f ));
         }

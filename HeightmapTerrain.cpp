@@ -63,8 +63,8 @@ void HeightmapTerrain::generateTerrainMesh() {
             // Correct texture coordinates
             float u = static_cast<float>(x) / (width - 1);
             float v = static_cast<float>(z) / (height - 1);
-            vertices.push_back(u);  // u-coordinate
-            vertices.push_back(v);  // v-coordinate
+            vertices.push_back(v/3.0f);  // v-coordinate
+            vertices.push_back(u/3.0f);  // u-coordinate
         }
     }
 
@@ -113,8 +113,11 @@ void HeightmapTerrain::init() {
     glBindVertexArray(0);
 }
 
-void HeightmapTerrain::draw(GLuint shaderProgram, const glm::mat4& view, const glm::mat4& projection) {
-
+void HeightmapTerrain::draw(GLuint shaderProgram, const glm::mat4& view, const glm::mat4& projection) 
+{
+    /*for (int i = 3 ; i < vertices.size() ; i+=5)
+        if(vertices[i] < 0.0f || vertices[i] > 1.0f)
+            std::cout << vertices[i] << std::endl;*/
     glUseProgram(shaderProgram);
 
     if(texture != 0) {
@@ -143,10 +146,11 @@ void HeightmapTerrain::loadTexture(const std::string& texturePath) {
     glBindTexture(GL_TEXTURE_2D, texture);
 
     // Set texture wrapping and filtering
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
 
     // Load the texture
     int texWidth, texHeight, nrChannels;
