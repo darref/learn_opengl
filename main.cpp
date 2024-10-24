@@ -12,8 +12,10 @@
 #include "Camera.hpp"
 #include "Skybox.hpp"
 #include "Shaders.h"
-#include "Window.h"
 #include "HeightmapTerrain.hpp"
+#include <csignal>  // pour utiliser std::raise()
+ 
+
 
 class Mortar
 {
@@ -25,6 +27,7 @@ class Mortar
         Skybox* skybox;
         HeightmapTerrain* terrain ;
         std::vector<Model*> models;
+        float initialWindowWidth , initialWindowHeight;
     public:
         
     int initGLEW() {
@@ -63,23 +66,46 @@ class Mortar
         // Initialisation de GLFW
         if (!glfwInit()) {
             std::cerr << "Échec d'initialisation de GLFW" << std::endl;
-            return nullptr;
+            this->exit();
         }
 
         // Création de la fenêtre
         glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
         glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
         glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+
+        // Get the primary monitor
+        GLFWmonitor* primaryMonitor = glfwGetPrimaryMonitor();
+        if (!primaryMonitor) {
+            std::cerr << "Failed to get primary monitor" << std::endl;
+            glfwTerminate();
+            this->exit();
+        }
+
+        // Get video mode of the primary monitor
+        const GLFWvidmode* videoMode = glfwGetVideoMode(primaryMonitor);
+        if (!videoMode) {
+            std::cerr << "Failed to get video mode" << std::endl;
+            glfwTerminate();
+            this->exit();
+        }
+
+        // Get screen width and height
+        int screenWidth = videoMode->width;
+        int screenHeight = videoMode->height;
+        initialWindowWidth = screenWidth*0.8f;
+        initialWindowHeight = screenHeight*0.8f;
         
-        GLFWwindow* window = glfwCreateWindow(800, 600, "|_| Mortar Engine |_|", nullptr, nullptr);
+        GLFWwindow* window = glfwCreateWindow(initialWindowWidth, initialWindowHeight, "|_| Mortar Engine |_|", nullptr, nullptr);
         if (!window) {
             std::cerr << "Échec de création de la fenêtre GLFW" << std::endl;
             glfwTerminate();
-            return nullptr;
+            this->exit();
         }
-        
         glfwMakeContextCurrent(window);
         glfwSwapInterval(1); // Activer le swap interval pour la synchronisation verticale
+        glfwSetWindowPos(window, (screenWidth - initialWindowWidth)/2.0f, (screenHeight-initialWindowHeight)/2.0f);
+        
 
         // Stocke un pointeur sur l'instance de la classe actuelle
         glfwSetWindowUserPointer(window, this);
@@ -140,14 +166,14 @@ class Mortar
 
     int init() {
         glfwSetWindowUserPointer(window, this);
-        camera = new Camera(glm::vec3(0.0f, 0.0f, 0.0f), 90.0f, 0.0f, 0.0f, 20.5f, 200.5f, 45.0f, 800.0f / 600.0f, 0.1f, 1000000000.0f);
-        fps = new FPSCounter(true);
-        // Stocke un pointeur sur l'instance de la classe actuelle
 
         window = initWindow();
         if (!window) return -1; // Vérifier si la fenêtre est bien créée
         if (initGLEW() != 0) return -1; // Vérifier si GLEW est bien initialisé
 
+        camera = new Camera(glm::vec3(0.0f, 0.0f, 0.0f), 90.0f, 0.0f, 0.0f, 20.5f, 200.5f, 45.0f, (initialWindowWidth / initialWindowHeight) , 0.1f, 1000000000.0f);
+        fps = new FPSCounter(true);
+        // Stocke un pointeur sur l'instance de la classe actuelle
 
         glEnable(GL_DEPTH_TEST);
         
@@ -168,7 +194,7 @@ class Mortar
     {
         skybox = new Skybox(glm::vec3(0.0f, 0.0f, 0.0f) , 100000.0f);
         skybox->init("textures/skybox2.png");
-        terrain = new HeightmapTerrain("textures/grid.jpg","heightmaps/mountains.png"  , 1.0f ,200.0f);
+        terrain = new HeightmapTerrain("heightmaps/allBlackHeightmap.png","textures/grid.jpg"  , 1.0f ,200.0f);
         
         for(int i = 0; i < 5; ++i)
         {
@@ -176,14 +202,16 @@ class Mortar
             models.back()->init("textures/barret.png" , "meshes/cube.glb");
             //models.back()->setRotation(glm::vec3(-90.0f , 0.0f , 0.0f ));
             models.back()->setScale(glm::vec3(0.5f,0.5f,0.5f ));
+            //models.back()->setPosition(glm::vec3(0.0f,25.0f,0.0f ));  
 
         }
         for(int i = 0; i < 5; ++i)
         {
             models.push_back( new Model(glm::vec3(i*2,2.0f,0.0f)) );
-            models.back()->init("meshes/bodybuilder/bodybuilder.jpg" , "meshes/bodybuilder/bodybuilder.glb");
+            models.back()->init("meshes/bodybuilder/bodybuilder.jpeg" , "meshes/bodybuilder/bodybuilder.glb");
             //models.back()->setRotation(glm::vec3(-90.0f , 0.0f , 0.0f ));
             //models.back()->setScale(glm::vec3(0.01f,0.01f,0.01f ));
+            //models.back()->setPosition(glm::vec3(0.0f,25.0f,0.0f ));        
         }
 
     }
@@ -225,7 +253,7 @@ class Mortar
             delete m; // Libérer la mémoire allouée pour le cube
         glDeleteProgram(shaderProgram);
         glfwTerminate();
-
+        std::raise(SIGKILL);
     }
 };
 

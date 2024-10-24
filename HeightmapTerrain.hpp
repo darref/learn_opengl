@@ -18,7 +18,9 @@ public:
     void generateTerrainMesh();
     void init();
     void loadTexture(const std::string& texturePath);
-
+    float calcMinHeight();
+    float calcMaxHeight();
+    float calcTerrainHeight();
 private:
     std::vector<float> vertices;
     std::vector<unsigned int> indices;
@@ -27,7 +29,9 @@ private:
     float scale, maxHeight;
     GLuint texture;
     std::vector<std::vector<float>> heightmapData;
-
+    glm::vec3 position = glm::vec3(0.0f , 0.0f , 0.0f);
+    float uniformTexScale = 100.0f;
+    float minHeightCurrent , maxHeightCurrent;
     float getHeightAt(int x, int y);
 };
 

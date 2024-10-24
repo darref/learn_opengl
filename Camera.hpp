@@ -26,7 +26,7 @@ public:
     float aspectRatio;
     bool firstMouse;
     float lastX, lastY; 
-    const float minSpeed = 20.5f , maxSpeed = 200.0f;
+    const float minSpeed = 20.0f , maxSpeed = 500.0f;
 
     // Constructor
     Camera(glm::vec3 startPosition, float startYaw, float startPitch, float startRoll,

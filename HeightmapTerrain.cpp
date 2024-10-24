@@ -3,14 +3,16 @@
 #include <iostream>
 
 HeightmapTerrain::HeightmapTerrain(const std::string& heightmapPath , const std::string& texturePath , float scale, float maxHeight)
-    : scale(scale), maxHeight(maxHeight), VAO(0), VBO(0), EBO(0) {
+    : scale(scale), maxHeight(maxHeight), VAO(0), VBO(0), EBO(0) 
+{
     loadHeightmap(heightmapPath);
     generateTerrainMesh();
     init();
     loadTexture(texturePath);
 }
 
-HeightmapTerrain::~HeightmapTerrain() {
+HeightmapTerrain::~HeightmapTerrain() 
+{
     glDeleteVertexArrays(1, &VAO);
     glDeleteBuffers(1, &VBO);
     glDeleteBuffers(1, &EBO);
@@ -33,6 +35,8 @@ void HeightmapTerrain::loadHeightmap(const std::string& heightmapPath) {
             // Convert the grayscale value to a height (0.0 to 1.0)
             float heightValue = static_cast<float>(data[y * width + x]) / 255.0f;
             heightmapData[y][x] = heightValue * maxHeight;  // Scale to maxHeight
+            //if(heightValue == 0.0f)
+              //  std::cout <<  heightValue << std::endl;       
         }
     }
 
@@ -51,20 +55,21 @@ float HeightmapTerrain::getHeightAt(int x, int y) {
 }
 
 void HeightmapTerrain::generateTerrainMesh() {
+    //generate vertices and TexCoords
     for (int z = 0; z < height; ++z) {
         for (int x = 0; x < width; ++x) {
-            float heightValue = getHeightAt(x, z);
-
             // Vertex positions
             vertices.push_back(x * scale);    // x position
-            vertices.push_back(heightValue);  // y position (height)
+            vertices.push_back(getHeightAt(x, z));  // y position (height)
+            //if(getHeightAt(x, z) <2.0f)
+            //std::cout << getHeightAt(x, z) << std::endl;
             vertices.push_back(z * scale);    // z position
 
             // Correct texture coordinates
             float u = static_cast<float>(x) / (width - 1);
             float v = static_cast<float>(z) / (height - 1);
-            vertices.push_back(v/3.0f);  // v-coordinate
-            vertices.push_back(u/3.0f);  // u-coordinate
+            vertices.push_back(v * uniformTexScale);  // v-coordinate
+            vertices.push_back(u * uniformTexScale);  // u-coordinate
         }
     }
 
@@ -126,7 +131,8 @@ void HeightmapTerrain::draw(GLuint shaderProgram, const glm::mat4& view, const g
         glUniform1i(glGetUniformLocation(shaderProgram, "textureSampler"), 0);
     }
 
-    glm::mat4 model = glm::mat4(1.0f); // Identity matrix for model
+    glm::mat4 model = glm::mat4(1.0f) ; // Identity matrix for model
+    model = glm::translate(model, position  );
     glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "model"), 1, GL_FALSE, glm::value_ptr(model));
     glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "view"), 1, GL_FALSE, glm::value_ptr(view));
     glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
@@ -146,8 +152,8 @@ void HeightmapTerrain::loadTexture(const std::string& texturePath) {
     glBindTexture(GL_TEXTURE_2D, texture);
 
     // Set texture wrapping and filtering
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
@@ -168,3 +174,32 @@ void HeightmapTerrain::loadTexture(const std::string& texturePath) {
     stbi_image_free(data);
 }
 
+float HeightmapTerrain::calcMinHeight()
+{   
+    float minHeight = 1000000000.0f;
+    for(int i = 1 ; i < vertices.size() ; i+=5)
+    {
+            if(vertices[i] < minHeight)
+                minHeight = vertices[i];       
+    }
+    std::cout << " POINT LE PLUS BAS DU TERRAIN: " << minHeight << std::endl;
+    return minHeight;
+}
+float HeightmapTerrain::calcMaxHeight()
+{   
+    float maxHeight = -1000000000.0f;
+    for(int i = 1 ; i < vertices.size() ; i+=5)
+    {
+            if(vertices[i] > maxHeight)
+                maxHeight = vertices[i];       
+    }
+    std::cout << " POINT LE PLUS HAUT DU TERRAIN: " << maxHeight << std::endl;
+    return maxHeight;
+}
+
+float HeightmapTerrain::calcTerrainHeight()
+{   
+    float h = maxHeightCurrent - minHeightCurrent;
+    //std::cout << " HAUTEUR TOTALE DU TERRAIN: " << h << std::endl;
+    return h;
+}

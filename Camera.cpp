@@ -136,11 +136,11 @@ void Camera::processRightClickView(GLFWwindow* window, float deltaTime)
 
 void Camera::decreaseSpeed()
 {
-    speed = speed < minSpeed ? minSpeed : speed *0.9f;
+    speed = speed < minSpeed ? minSpeed : speed *0.8f;
 }
 
 void Camera::increaseSpeed()
 {
-    speed = speed > maxSpeed ? maxSpeed : speed *1.1f;
+    speed = speed > maxSpeed ? maxSpeed : speed *1.2f;
 }
 
