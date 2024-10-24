@@ -9,6 +9,7 @@ HeightmapTerrain::HeightmapTerrain(const std::string& heightmapPath , const std:
     generateTerrainMesh();
     init();
     loadTexture(texturePath);
+    position -= glm::vec3(width/2.0f , 0.0f , height/2.0f);
 }
 
 HeightmapTerrain::~HeightmapTerrain() 

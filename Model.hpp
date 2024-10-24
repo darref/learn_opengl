@@ -29,19 +29,23 @@ public:
     const std::vector<float>& getTextureCoords() const;
     const glm::mat4& getMatrice() const;
     const GLuint& getTexture() const;
-
+    const std::string getName() const;
+    float getSizeX() const;
+    float getSizeY() const;
+    float getSizeZ() const;
     void setPosition(glm::vec3 pos);
     void setRotation(glm::vec3 rot);
     void setScale(glm::vec3 sca);
     void setModelMatrix(glm::mat4& matrix);
+    void setName(const std::string& name);
     void addPosition(glm::vec3 deltaPos);
     void addRotation(glm::vec3 deltaPos);
     void addScale(glm::vec3 deltaPos);
 
     void applyTransformations();
-    void loadTexture(const std::string& texturePath);
+    virtual void loadTexture(const std::string& texturePath);
     void loadVertices(const std::string& filePath);
-    void draw(GLuint shaderProgram, const glm::mat4& view, const glm::mat4& projection);
+    virtual void draw(GLuint shaderProgram, const glm::mat4& view, const glm::mat4& projection);
     ////////////////////////////////////////////////////////
 protected:
     // Order of initialization in the constructor
@@ -55,6 +59,7 @@ protected:
     std::vector<unsigned int> indices;       // Index data
     bool spinning  = true;
     float spinningSpeed = 30.0f;
+    std::string name = "default name";
 
     void resetMatrice();                     // Reset transformation matrix
 };

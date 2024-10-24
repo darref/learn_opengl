@@ -10,10 +10,10 @@
 #include <sstream>
 #include "FPSCounter.hpp"
 #include "Camera.hpp"
-#include "Skybox.hpp"
 #include "Shaders.h"
 #include "HeightmapTerrain.hpp"
 #include <csignal>  // pour utiliser std::raise()
+#include "Model.hpp"
  
 
 
@@ -23,8 +23,7 @@ class Mortar
         FPSCounter* fps;
         Camera* camera;
         GLFWwindow* window;
-        GLuint shaderProgram;
-        Skybox* skybox;
+        GLuint shaderProgram , shaderProgramSkybox;
         HeightmapTerrain* terrain ;
         std::vector<Model*> models;
         float initialWindowWidth , initialWindowHeight;
@@ -177,7 +176,7 @@ class Mortar
 
         glEnable(GL_DEPTH_TEST);
         
-        glClearColor(0.4f, 0.0f, 1.0f, 1.0f); // Noir
+        glClearColor(0.0f, 0.6f, 1.0f, 1.0f); // Noir
         glDisable(GL_CULL_FACE); // Désactiver le culling
         glfwSwapInterval(0);
         shaderProgram = createShaderProgram("shaders/vertex_shader.glsl", "shaders/fragment_shader.glsl");
@@ -192,28 +191,28 @@ class Mortar
 
     void loadScene()
     {
-        skybox = new Skybox(glm::vec3(0.0f, 0.0f, 0.0f) , 100000.0f);
-        skybox->init("textures/skybox2.png");
         terrain = new HeightmapTerrain("heightmaps/allBlackHeightmap.png","textures/grid.jpg"  , 1.0f ,200.0f);
         
         for(int i = 0; i < 5; ++i)
         {
-            models.push_back( new Model(glm::vec3(i*2,0.0f,0.0f)) );
+            models.push_back( new Model(glm::vec3(i*2.0f,0.0f,0.0f)) );
             models.back()->init("textures/barret.png" , "meshes/cube.glb");
             //models.back()->setRotation(glm::vec3(-90.0f , 0.0f , 0.0f ));
             models.back()->setScale(glm::vec3(0.5f,0.5f,0.5f ));
-            //models.back()->setPosition(glm::vec3(0.0f,25.0f,0.0f ));  
-
+            models.back()->setPosition(glm::vec3(i*2.0f,models.back()->getSizeY() /2.0f,0.0f ));        
+            models.back()->setName("cubetest_" + std::to_string(i));
         }
+        std::cout << "Model [" <<  models.back()->getName() << "]\'s size : " << models.back()->getSizeX() << " " << models.back()->getSizeY() << " " << models.back()->getSizeZ() << std::endl;
         for(int i = 0; i < 5; ++i)
         {
             models.push_back( new Model(glm::vec3(i*2,2.0f,0.0f)) );
             models.back()->init("meshes/bodybuilder/bodybuilder.jpeg" , "meshes/bodybuilder/bodybuilder.glb");
+            models.back()->setName("bodybuilder_" + std::to_string(i));
             //models.back()->setRotation(glm::vec3(-90.0f , 0.0f , 0.0f ));
             //models.back()->setScale(glm::vec3(0.01f,0.01f,0.01f ));
-            //models.back()->setPosition(glm::vec3(0.0f,25.0f,0.0f ));        
+            models.back()->setPosition(glm::vec3(i*2.0f,models.back()->getSizeY() /2.0f,3.0f ));        
         }
-
+        std::cout << "Model [" <<  models.back()->getName() << "]\'s size : " << models.back()->getSizeX() << " " << models.back()->getSizeY() << " " << models.back()->getSizeZ() << std::endl;
     }
 
     void gameCycle()
@@ -226,10 +225,10 @@ class Mortar
             // Effacer l'écran
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
             glm::mat4 view = camera->getViewMatrix();
-            glm::mat4 projection = camera->getProjectionMatrix();
-            // Dessiner les cubes
-            skybox->draw(shaderProgram, view, projection);
+glm::mat4 projection = glm::perspective(glm::radians(camera->FOV), camera->aspectRatio, 0.1f, 1000.0f);
+            glm::vec3 sunDirection = glm::normalize(glm::vec3(0.0f, 1.0f, 1.0f));
             terrain->draw(shaderProgram, view, projection);
+            // Dessiner les models
             for(auto m : models)
             {
                 m->animation(fps->deltaTime); // Assurez-vous que cette méthode est implémentée
@@ -246,7 +245,6 @@ class Mortar
     {
         delete fps;
         delete camera;
-        delete skybox;
         delete terrain ;
         // Libération des ressources
         for(auto m : models)

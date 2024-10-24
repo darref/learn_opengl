@@ -24,6 +24,7 @@ std::string readShaderFile(const std::string& filePath) {
 
 
 GLuint createShaderProgram(const std::string& vertexShaderPath, const std::string& fragmentShaderPath) {
+    //std::cout << "ici: " << vertexShaderPath << " " << fragmentShaderPath << std::endl;
     // Read the shader source from files
     std::string vertexShaderSourceStr = readShaderFile(vertexShaderPath);
     std::string fragmentShaderSourceStr = readShaderFile(fragmentShaderPath);
@@ -34,6 +35,7 @@ GLuint createShaderProgram(const std::string& vertexShaderPath, const std::strin
 
     // Check if shader source files were successfully read
     if (vertexShaderSourceStr.empty() || fragmentShaderSourceStr.empty()) {
+        //std::cout << fragmentShaderSourceStr << std::endl;
         std::cerr << "Error reading shader files." << std::endl;
         return 0; // Return an invalid program ID
     }

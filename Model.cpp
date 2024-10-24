@@ -141,6 +141,11 @@ void Model::setModelMatrix(glm::mat4& matrix)
     matrice = matrix;
 }
 
+void Model::setName(const std::string& name)
+{
+    this->name = name;
+}
+
 void Model::animation(float deltaTime) {
     if(spinning)
     {
@@ -190,6 +195,48 @@ const std::vector<unsigned int>& Model::getIndices() const
 const glm::mat4& Model::getMatrice() const
 {
     return matrice;
+}
+
+float Model::getSizeX() const
+{
+    float higherVertice = -1000000000.0f;
+    float lowerVertice = 1000000000.0f;
+    for(int i = 0 ; i < vertices.size() ; i+=5)
+    {
+        if(vertices[i] < lowerVertice)
+            lowerVertice = vertices[i];
+        if(vertices[i] > higherVertice)
+            higherVertice = vertices[i];
+    }
+    return (higherVertice - lowerVertice)*scale.x;
+}
+
+float Model::getSizeY() const
+{
+    float higherVertice = -1000000000.0f;
+    float lowerVertice = 1000000000.0f;
+    for(int i = 1 ; i < vertices.size() ; i+=5)
+    {
+        if(vertices[i] < lowerVertice)
+            lowerVertice = vertices[i];
+        if(vertices[i] > higherVertice)
+            higherVertice = vertices[i];
+    }
+    return (higherVertice - lowerVertice)*scale.y;
+}
+
+float Model::getSizeZ() const
+{
+    float higherVertice = -1000000000.0f;
+    float lowerVertice = 1000000000.0f;
+    for(int i = 2 ; i < vertices.size() ; i+=5)
+    {
+        if(vertices[i] < lowerVertice)
+            lowerVertice = vertices[i];
+        if(vertices[i] > higherVertice)
+            higherVertice = vertices[i];
+    }
+    return (higherVertice - lowerVertice)*scale.z;
 }
 
 void Model::applyTransformations()
@@ -305,6 +352,9 @@ void Model::loadVertices(const std::string& filePath) {
 }
 
 
-
+const std::string Model::getName() const
+{
+    return name;
+}
 
 
