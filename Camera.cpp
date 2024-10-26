@@ -10,6 +10,14 @@ glm::mat4 Camera::getViewMatrix() {
 glm::mat4 Camera::getProjectionMatrix() {
     return glm::perspective(glm::radians(FOV), aspectRatio, nearPlane, farPlane);
 }
+const glm::vec3& Camera::getPosition()
+{
+    return position;
+}
+glm::vec3 Camera::getRotation() const
+{
+    return glm::vec3(pitch , yaw , roll);
+}
 
 void Camera::setAspectRatio(float ar)
 {
@@ -143,4 +151,32 @@ void Camera::increaseSpeed()
 {
     speed = speed > maxSpeed ? maxSpeed : speed *1.2f;
 }
+// Définit la position de la caméra
+void Camera::setPosition(const glm::vec3& newPosition) {
+    position = newPosition; // Met à jour la position de la caméra
+    updateCameraVectors();
+}
 
+void Camera::setDirection(const glm::vec3& newDirection) {
+    front = glm::normalize(newDirection);
+
+    // Calculer yaw et pitch à partir de la direction donnée
+    pitch = glm::degrees(asin(front.y));  // Utilise l'axe Y pour le pitch
+    yaw = glm::degrees(atan2(front.z, front.x));  // Utilise X et Z pour le yaw
+
+    // Réajuste les vecteurs up et right en fonction de la nouvelle direction
+    updateCameraVectors();
+}
+
+void Camera::setRotation(const glm::vec3& newRotation)
+{
+    this->yaw = newRotation.y;
+    this->pitch = newRotation.x;
+    this->roll = newRotation.z;
+    updateCameraVectors();
+}
+
+glm::vec3 Camera::getDirection() const 
+{
+    return front;
+}

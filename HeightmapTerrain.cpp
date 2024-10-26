@@ -121,6 +121,12 @@ void HeightmapTerrain::init() {
 
 void HeightmapTerrain::draw(GLuint shaderProgram, const glm::mat4& view, const glm::mat4& projection) 
 {
+    frustum.setViewProjectionMatrix( projection * view );
+    //dessin
+    glm::vec3 minT = this->getBoundingBoxMin();
+    glm::vec3 maxT = this->getBoundingBoxMax();
+    if(!frustum.isBoxInFrustum(minT, maxT))
+        return;
     /*for (int i = 3 ; i < vertices.size() ; i+=5)
         if(vertices[i] < 0.0f || vertices[i] > 1.0f)
             std::cout << vertices[i] << std::endl;*/
@@ -203,4 +209,44 @@ float HeightmapTerrain::calcTerrainHeight()
     float h = maxHeightCurrent - minHeightCurrent;
     //std::cout << " HAUTEUR TOTALE DU TERRAIN: " << h << std::endl;
     return h;
+}
+
+void HeightmapTerrain::recalculateBounds() {
+    // Initialisation des bornes
+    boundsMin = glm::vec3(std::numeric_limits<float>::max());
+    boundsMax = glm::vec3(std::numeric_limits<float>::lowest());
+
+    // Calcul des bornes en fonction des vertices et des dimensions
+    for (size_t i = 0; i < vertices.size(); i += 5) { // Itérer sur les positions (x, z) et hauteurs (y)
+        float x = vertices[i];       // Position x
+        float y = vertices[i + 1];   // Hauteur y
+        float z = vertices[i + 2];   // Position z
+
+        // Mettre à jour les valeurs minimales et maximales
+        boundsMin.x = std::min(boundsMin.x, x);
+        boundsMax.x = std::max(boundsMax.x, x);
+        boundsMin.y = std::min(boundsMin.y, y);
+        boundsMax.y = std::max(boundsMax.y, y);
+        boundsMin.z = std::min(boundsMin.z, z);
+        boundsMax.z = std::max(boundsMax.z, z);
+    }
+
+    // Ajustement des bornes pour inclure la longueur et la largeur
+    boundsMin.x = std::min(boundsMin.x, position.x);
+    boundsMax.x = std::max(boundsMax.x, position.x + (width * scale));
+    boundsMin.z = std::min(boundsMin.z, position.z);
+    boundsMax.z = std::max(boundsMax.z, position.z + (height * scale));
+
+    std::cout << "Terrain Bounds Min: (" << boundsMin.x << ", " << boundsMin.y << ", " << boundsMin.z << ")" << std::endl;
+    std::cout << "Terrain Bounds Max: (" << boundsMax.x << ", " << boundsMax.y << ", " << boundsMax.z << ")" << std::endl;
+
+    
+}
+
+const glm::vec3& HeightmapTerrain::getBoundingBoxMin() const {
+    return boundsMin;
+}
+
+const glm::vec3& HeightmapTerrain::getBoundingBoxMax() const {
+    return boundsMax;
 }

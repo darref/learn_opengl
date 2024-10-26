@@ -7,6 +7,7 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <GL/glew.h>
+#include "Frustum.hpp"
 
 class HeightmapTerrain {
 public:
@@ -21,6 +22,9 @@ public:
     float calcMinHeight();
     float calcMaxHeight();
     float calcTerrainHeight();
+    void recalculateBounds();
+    const glm::vec3& getBoundingBoxMin() const;
+    const glm::vec3& getBoundingBoxMax() const;
 private:
     std::vector<float> vertices;
     std::vector<unsigned int> indices;
@@ -31,6 +35,9 @@ private:
     std::vector<std::vector<float>> heightmapData;
     glm::vec3 position = glm::vec3(0.0f , 0.0f , 0.0f);
     float uniformTexScale = 100.0f;
+    glm::vec3 boundsMin , boundsMax;
+    Frustum frustum;
+
     float minHeightCurrent , maxHeightCurrent;
     float getHeightAt(int x, int y);
 };

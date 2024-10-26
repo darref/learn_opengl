@@ -74,6 +74,13 @@ void Model::init(std::string texturePath , std::string filePath) {
 void Model::draw(GLuint shaderProgram, const glm::mat4& view, const glm::mat4& projection) {
     applyTransformations();
 
+    frustum.setViewProjectionMatrix( projection * view );
+    //dessin
+    glm::vec3 min = this->getBoundingBoxMin();
+    glm::vec3 max = this->getBoundingBoxMax();
+    if(!frustum.isBoxInFrustum(min, max))
+        return
+
     glUseProgram(shaderProgram);
 
     if(!(texture == 0))
@@ -239,6 +246,36 @@ float Model::getSizeZ() const
     return (higherVertice - lowerVertice)*scale.z;
 }
 
+// Retourne le coin inférieur de la bounding box (minX, minY, minZ)
+glm::vec3 Model::getBoundingBoxMin() const {
+    float minX = 1000000000.0f, minY = 1000000000.0f, minZ = 1000000000.0f;
+
+    // Parcours des vertices pour trouver les minimums sur chaque axe
+    for (size_t i = 0; i < vertices.size(); i += 5) {
+        if (vertices[i] < minX) minX = vertices[i];
+        if (vertices[i + 1] < minY) minY = vertices[i + 1];
+        if (vertices[i + 2] < minZ) minZ = vertices[i + 2];
+    }
+    
+    // Applique l'échelle pour ajuster les coordonnées
+    return position + glm::vec3(minX * scale.x, minY * scale.y, minZ * scale.z);
+}
+
+// Retourne le coin supérieur de la bounding box (maxX, maxY, maxZ)
+glm::vec3 Model::getBoundingBoxMax() const {
+    float maxX = -1000000000.0f, maxY = -1000000000.0f, maxZ = -1000000000.0f;
+
+    // Parcours des vertices pour trouver les maximums sur chaque axe
+    for (size_t i = 0; i < vertices.size(); i += 5) {
+        if (vertices[i] > maxX) maxX = vertices[i];
+        if (vertices[i + 1] > maxY) maxY = vertices[i + 1];
+        if (vertices[i + 2] > maxZ) maxZ = vertices[i + 2];
+    }
+
+    // Applique l'échelle pour ajuster les coordonnées
+    return position + glm::vec3(maxX * scale.x, maxY * scale.y, maxZ * scale.z);
+}
+
 void Model::applyTransformations()
 {
     resetMatrice();
@@ -356,5 +393,39 @@ const std::string Model::getName() const
 {
     return name;
 }
+// Renvoie le vecteur de rotation
+glm::vec3 Model::getRotation() const {
+    return rotation;
+}
 
+glm::vec3 Model::getDirection() const {
+    float yaw = glm::radians(rotation.y);
+    float pitch = glm::radians(rotation.x);
+
+    glm::vec3 direction;
+    direction.x = cos(pitch) * sin(yaw);
+    direction.y = sin(pitch);
+    direction.z = cos(pitch) * cos(yaw); // Inversé pour une direction correcte
+
+    return -glm::normalize(direction);
+}
+const glm::vec3& Model::getPosition() const
+{
+    return position;
+}
+
+
+glm::vec3 Model::getRightVector() const {
+    // Calcule le vecteur de droite (right) en utilisant le vecteur de direction (front) et le vecteur "up" standard
+    glm::vec3 front = getDirection();
+    glm::vec3 up(0.0f, 1.0f, 0.0f); // Vecteur "up" global
+    return glm::normalize(glm::cross(front, up)); // Utilise le produit vectoriel pour obtenir le vecteur droit
+}
+
+glm::vec3 Model::getUpVector() const {
+    // Calcule le vecteur "up" (up) à partir du vecteur de direction et du vecteur "right"
+    glm::vec3 front = getDirection();
+    glm::vec3 right = getRightVector();
+    return glm::normalize(glm::cross(right, front)); // Utilise le produit vectoriel pour obtenir le vecteur up
+}
 

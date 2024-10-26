@@ -7,6 +7,7 @@
 #include <GL/glew.h>
 #include <string>
 using namespace std;
+#include "Frustum.hpp"
 
 class Model
 {
@@ -33,6 +34,17 @@ public:
     float getSizeX() const;
     float getSizeY() const;
     float getSizeZ() const;
+    glm::vec3 getBoundingBoxMin() const;
+    glm::vec3 getBoundingBoxMax() const;
+    // Ajouts dans la section public de Model.hpp
+    glm::vec3 getRotation() const;
+    glm::vec3 getDirection() const;
+    const glm::vec3& getPosition() const;
+    // Ajoutez ces méthodes dans la section public de Model.hpp
+    glm::vec3 getRightVector() const;
+    glm::vec3 getUpVector() const;
+
+
     void setPosition(glm::vec3 pos);
     void setRotation(glm::vec3 rot);
     void setScale(glm::vec3 sca);
@@ -60,6 +72,8 @@ protected:
     bool spinning  = true;
     float spinningSpeed = 30.0f;
     std::string name = "default name";
+    Frustum frustum;
+        
 
     void resetMatrice();                     // Reset transformation matrix
 };

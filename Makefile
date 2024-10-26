@@ -2,8 +2,8 @@ CXX = g++
 CXXFLAGS = -std=c++17 -Wall -I/usr/include -I/usr/local/include -I/usr/include/glm -I./stbImage -I/usr/include/assimp
 LDFLAGS = -lglfw -lGL -lGLEW -lassimp
 
-SRC = main.cpp Camera.cpp Model.cpp Skybox.cpp HeightmapTerrain.cpp
-OBJ = $(SRC:.cpp=.o)
+SRC = main.cpp Mortar.cpp Camera.cpp Model.cpp Skybox.cpp HeightmapTerrain.cpp Character.cpp Frustum.cpp Shaders.cpp
+OBJ = $(SRC:.cpp=.o) 
 EXEC = mortar
 
 all: $(EXEC)

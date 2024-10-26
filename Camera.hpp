@@ -8,25 +8,6 @@
 
 class Camera {
 public:
-    // Position and orientation
-    glm::vec3 position;
-    glm::vec3 front;
-    glm::vec3 up;
-    glm::vec3 right;
-
-    // Camera parameters
-    float yaw;
-    float pitch;
-    float roll;
-    float speed;
-    float turnSpeed;
-    float nearPlane;
-    float farPlane;
-    float FOV;
-    float aspectRatio;
-    bool firstMouse;
-    float lastX, lastY; 
-    const float minSpeed = 20.0f , maxSpeed = 500.0f;
 
     // Constructor
     Camera(glm::vec3 startPosition, float startYaw, float startPitch, float startRoll,
@@ -53,6 +34,9 @@ public:
     // Member functions
     glm::mat4 getViewMatrix();
     glm::mat4 getProjectionMatrix();
+    const glm::vec3& getPosition();
+    glm::vec3 getDirection() const;
+    glm::vec3 getRotation() const;
     void setAspectRatio(float ar);
     void moveForward(float deltaTime);
     void moveBackward(float deltaTime);
@@ -69,6 +53,30 @@ public:
     void processRightClickView(GLFWwindow* window, float deltaTime);
     void increaseSpeed();
     void decreaseSpeed();
+    void setPosition(const glm::vec3& newPosition);
+    void setDirection(const glm::vec3& newDirection);
+    void setRotation(const glm::vec3& newRotation);
+
+    bool firstMouse;
+    float yaw;
+    float pitch;
+    float roll;
+    float speed;
+    float turnSpeed;
+    float nearPlane;
+    float farPlane;
+    float FOV;
+    float aspectRatio;
+    float lastX, lastY; 
+    const float minSpeed = 20.0f , maxSpeed = 500.0f;
+private:
+    // Position and orientation
+    glm::vec3 position;
+    glm::vec3 front;
+    glm::vec3 up;
+    glm::vec3 right;
+
+    // Camera parameters
 };
 
 #endif // CAMERA_HPP

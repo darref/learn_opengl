@@ -1,0 +1,4 @@
+enum Mode {
+    Editor,
+    Game
+};
