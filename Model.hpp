@@ -1,15 +1,24 @@
 #ifndef MODEL_HPP
 #define MODEL_HPP
 
+#include <map>
 #include <vector>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <GL/glew.h>
 #include <string>
+
+#include "ObjectBase.hpp"
 using namespace std;
 #include "Frustum.hpp"
+#include "Skeleton.hpp"
+#include "Animation.hpp"
 
-class Model
+#define JUMP_ANIM "jump"
+#define RUN_ANIM "run"
+#define IDLE_ANIM "idle"
+
+class Model: public ObjectBase
 {
 public:
     Model();
@@ -25,6 +34,8 @@ public:
     virtual void init(std::string texturePath , std::string filePath);
     ////////////////////////////////////////////////////////
     virtual void animation(float deltaTime);
+    void play(float deltaTime);
+    void setAnimation(const std::string& animationName);
     const std::vector<float>& getVertices() const;
     const std::vector<unsigned int>& getIndices() const;
     const std::vector<float>& getTextureCoords() const;
@@ -57,6 +68,8 @@ public:
     void applyTransformations();
     virtual void loadTexture(const std::string& texturePath);
     void loadVertices(const std::string& filePath);
+    void loadSkeleton(const string& meshFilePath);
+    void loadAnimation(const string& animFilePath  , const string& animationName);
     virtual void draw(GLuint shaderProgram, const glm::mat4& view, const glm::mat4& projection);
     ////////////////////////////////////////////////////////
 protected:
@@ -69,11 +82,14 @@ protected:
     glm::mat4 matrice;                       // Transformation matrix
     std::vector<float> vertices;             // Vertex data
     std::vector<unsigned int> indices;       // Index data
-    bool spinning  = true;
+    bool spinning  = false;
     float spinningSpeed = 30.0f;
     std::string name = "default name";
     Frustum frustum;
-        
+    Skeleton skeleton;
+    std::map<std::string, Animation*> animations;
+    Animation* currentAnimation;
+    std::vector<float> animatedVertices;
 
     void resetMatrice();                     // Reset transformation matrix
 };

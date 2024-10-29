@@ -8,8 +8,9 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <GL/glew.h>
 #include "Frustum.hpp"
+#include "ObjectBase.hpp"
 
-class HeightmapTerrain {
+class HeightmapTerrain : public ObjectBase{
 public:
     HeightmapTerrain(const std::string& heightmapPath,const std::string& texturePath , float scale, float maxHeight);
     ~HeightmapTerrain();

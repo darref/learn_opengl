@@ -18,6 +18,7 @@
 #include "Frustum.hpp"
 #include "Character.hpp"
 #include "Mode.h"
+#include "Skybox.hpp"
 
 class Character;
 
@@ -35,6 +36,7 @@ private:
     Frustum* frustum;
     Character* character;
     Mode currentMode = Mode::Editor;
+    Skybox* skybox;
 
     // Méthodes privées
     int initGLEW();

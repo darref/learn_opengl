@@ -16,6 +16,12 @@ void Character::init()
     placeCameraInBack();
 }
 
+void Character::loadAnimation(const string& animFilePath , const string& animationName)
+{
+    model.loadAnimation(animFilePath , animationName );
+    model.setAnimation(animationName);
+}
+
 void Character::update(float deltaTime) {
     applyGravity(deltaTime);
     position += velocity * deltaTime;
@@ -29,6 +35,7 @@ void Character::update(float deltaTime) {
     }
 
     //std::cout << pitch << std::endl;
+    model.animation(deltaTime);
 
 }
 
@@ -152,7 +159,7 @@ void Character::processRightClickView(GLFWwindow* window, float deltaTime)
         lastY = ypos;
 
         // Appel de la fonction de traitement du mouvement de souris
-        processMouseMovement(xOffset, yOffset, deltaTime);
+        processMouseMovement(xOffset, -yOffset, deltaTime);
     }
     else {
         glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
@@ -180,8 +187,7 @@ void Character::replaceCamera()
     glm::vec3 cameraPosition = characterPosition + glm::vec3(offsetX, verticalDistance, offsetZ);
     characterCamera->setPosition(cameraPosition);
     // Faire regarder la caméra vers le personnage
-    glm::vec3 cameraDirection = glm::normalize(characterPosition - cameraPosition);
-    characterCamera->setDirection(cameraDirection);
+    characterCamera->lookAt(model.getPosition());
 }
 
 glm::vec3 Character::getPosition() const {
@@ -225,6 +231,12 @@ void Character::setPosition(glm::vec3 pos)
     position = pos;
     model.setPosition(pos);
 }
+
+void Character::setAnimation(const std::string& animationType)
+{
+    model.setAnimation(animationType);
+}
+
 void Character::possess()
 {
     game->currentCamera = characterCamera;

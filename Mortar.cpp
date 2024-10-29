@@ -127,6 +127,8 @@ int Mortar::init() {
 
     editorCamera = new Camera(glm::vec3(0.0f, 0.0f, 0.0f), 90.0f, 0.0f, 0.0f, 20.5f, 200.5f, 45.0f, (initialWindowWidth / initialWindowHeight), 0.1f, 1000000000.0f);
     currentCamera = editorCamera;
+    currentCamera->setPosition(glm::vec3(0.0f , 6.0f , -5.0f));
+    currentCamera->lookAt(glm::vec3(0.0f, 0.0f, 0.0f));
     fps = new FPSCounter(true);
 
     glEnable(GL_DEPTH_TEST);
@@ -146,12 +148,23 @@ int Mortar::init() {
 }
 
 void Mortar::loadScene() {
+    // Chemins vers les images de la skybox
+    std::vector<std::string> faces = {
+        "./textures/skybox2.png",
+        "./textures/skybox2.png",
+        "./textures/topskybox2.png",
+        "./textures/bottomskybox2.png",
+        "./textures/skybox2.png",
+        "./textures/skybox2.png"
+    };
+
+    //skybox = new Skybox(faces);
     terrain = new HeightmapTerrain("heightmaps/allBlackHeightmap.png", "textures/grid.jpg", 1.0f, 200.0f);
     terrain->recalculateBounds();
 
     for (int i = 0; i < 5; ++i) {
         auto* model = new Model(glm::vec3(i * 2.0f, 0.0f, 0.0f));
-        model->init("textures/barret.png", "meshes/cube.glb");
+        model->init("meshes/cube//barret.png", "meshes/cube/cube.glb");
         model->setScale(glm::vec3(0.5f, 0.5f, 0.5f));
         model->setPosition(glm::vec3(i * 2.0f, model->getSizeY() / 2.0f, 0.0f));
         model->setName("cubetest_" + std::to_string(i));
@@ -166,9 +179,10 @@ void Mortar::loadScene() {
         models.push_back(model);
     }
 
-    character = new Character(glm::vec3(0.0f, 0.0f, 0.0f), "meshes/bodybuilder/bodybuilder.glb", "meshes/bodybuilder/bodybuilder.jpeg" , this);
+    character = new Character(glm::vec3(0.0f, 0.0f, 0.0f), "./meshes/bodybuilder/bodybuilder.fbx", "meshes/bodybuilder/bodybuilder.jpeg" , this);
     character->init();
     character->setPosition(glm::vec3(0.0f, character->getSizeY() / 2.0f , 5.0f));
+    //character->loadAnimation("./meshes/bodybuilder/idle.fbx" , "idle");
 
 
 }
@@ -180,8 +194,9 @@ void Mortar::gameCycle() {
 
         if (currentMode == Mode::Game) {
             character->processInputs(window, fps->getDeltaTime());
-            character->update(fps->getDeltaTime());
+
         }
+        character->update(fps->getDeltaTime());
 
         for (auto m : models) {
             m->animation(fps->getDeltaTime());
@@ -193,10 +208,12 @@ void Mortar::gameCycle() {
         glm::mat4 projection = glm::perspective(glm::radians(currentCamera->FOV), currentCamera->aspectRatio, 0.1f, 1000.0f);
         frustum->setViewProjectionMatrix(projection * view);
 
+        //skybox->draw( view, projection);
         terrain->draw(shaderProgram, view, projection);
         for (auto m : models)
             m->draw(shaderProgram, view, projection);
         character->draw(shaderProgram, view, projection);
+
 
         glfwSwapBuffers(window);
         glfwPollEvents();

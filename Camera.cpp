@@ -168,6 +168,17 @@ void Camera::setDirection(const glm::vec3& newDirection) {
     updateCameraVectors();
 }
 
+void Camera::lookAt(const ObjectBase& obj)
+{
+    glm::vec3 cameraDirection = glm::normalize(obj.getPosition() - this->position);
+    this->setDirection(cameraDirection);
+}
+void Camera::lookAt(const glm::vec3& pos)
+{
+    glm::vec3 cameraDirection = glm::normalize(pos - this->position);
+    this->setDirection(cameraDirection);
+}
+
 void Camera::setRotation(const glm::vec3& newRotation)
 {
     this->yaw = newRotation.y;

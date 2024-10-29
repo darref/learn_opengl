@@ -6,12 +6,14 @@
 #include <GLFW/glfw3.h>
 #include "Frustum.hpp"
 #include "Camera.hpp"
+#include "ObjectBase.hpp"
 class Mortar;
 
-class Character {
+class Character : public ObjectBase{
 public:
     Character(const glm::vec3& startPos , const string& modelFilePath, const string& textureFilePath, Mortar* game);
     void init();
+    void loadAnimation(const string& animFilePath , const string& animationName);
 
     void update(float deltaTime);
     void moveForward(float deltaTime);
@@ -33,6 +35,7 @@ public:
     glm::vec3 getBoundingBoxMin() const;
     glm::vec3 getBoundingBoxMax() const;
     void setPosition(glm::vec3 pos);
+    void setAnimation(const std::string& animationType);
 
     void possess();
     void unpossess();

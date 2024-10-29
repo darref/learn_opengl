@@ -1,14 +1,17 @@
 #version 330 core
-layout(location = 0) in vec3 aPos; // Position des sommets
 
-out vec3 TexCoords; // Coordonnées de texture 3D
+layout(location = 0) in vec3 aPos;
 
-uniform mat4 view; // Matrice de vue
-uniform mat4 projection; // Matrice de projection
+out vec3 TexCoords;
+
+uniform mat4 view;
+uniform mat4 projection;
 
 void main()
 {
-    TexCoords = aPos; // Passez les coordonnées de position comme coordonnées de texture
-    gl_Position = projection * view * vec4(aPos, 1.0); // Calcul de la position
-}
+    TexCoords = aPos; // Pass the position directly as texture coordinates
+    vec4 pos = projection * view * vec4(aPos, 1.0);
+    gl_Position = pos.xyww; // Sets w component to retain depth
 
+    // This projects the skybox to the far clipping plane
+}

@@ -6,7 +6,9 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <GLFW/glfw3.h>
 
-class Camera {
+#include "ObjectBase.hpp"
+
+class Camera : public ObjectBase{
 public:
 
     // Constructor
@@ -55,6 +57,8 @@ public:
     void decreaseSpeed();
     void setPosition(const glm::vec3& newPosition);
     void setDirection(const glm::vec3& newDirection);
+    void lookAt(const ObjectBase& obj);
+    void lookAt(const glm::vec3& pos);
     void setRotation(const glm::vec3& newRotation);
 
     bool firstMouse;

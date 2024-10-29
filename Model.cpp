@@ -20,7 +20,8 @@ Model::Model()
       position(glm::vec3(0.0f, 0.0f, 0.0f)),  // Initialize position
       rotation(glm::vec3(0.0f, 0.0f, 0.0f)),  // Initialize rotation
       scale(glm::vec3(1.0f, 1.0f, 1.0f)),     // Initialize scale
-      matrice(glm::mat4(1.0f))                 // Initialize matrice
+      matrice(glm::mat4(1.0f)),                 // Initialize matrice
+      skeleton()
 {
 }
 
@@ -39,6 +40,7 @@ Model::Model(glm::vec3 pos)
 
 void Model::init(std::string texturePath , std::string filePath) {
     loadVertices(filePath);
+    loadSkeleton(filePath);
 
     glGenVertexArrays(1, &VAO);
     glGenBuffers(1, &VBO);
@@ -158,6 +160,69 @@ void Model::animation(float deltaTime) {
     {
         addRotation(glm::vec3(0.0f,spinningSpeed*deltaTime , 0.0f));
     }
+    else
+    {
+        play(deltaTime);
+    }
+}
+
+void Model::play(float deltaTime) {
+    // Vérifier si une animation et un squelette sont chargés
+    if (skeleton.isEmpty() || !currentAnimation || currentAnimation->getKeyframes().empty()) {
+        //std::cerr << "Erreur : Pas d'animation ou de squelette chargé." << std::endl;
+        return;
+    }
+    //else
+        //std::cout << "model: " << name << " possede bien un squelette et une animation" << std::endl;
+
+    // Récupérer les keyframes de l'animation en cours
+
+
+    currentAnimation->update(deltaTime);
+    // Find the current keyframe based on time
+    Keyframe currentKeyframe = currentAnimation->getCurrentKeyframes();
+
+    // Vérifier que le nombre de bones correspond
+    if (skeleton.getBones().size() != currentKeyframe.boneTransforms.size()) {
+        std::cerr << "Erreur : Le nombre d'os dans le squelette et l'animation ne correspond pas." << std::endl;
+        return;
+    }
+
+    // Réinitialiser les vertices animés
+    animatedVertices.clear();
+    animatedVertices.resize(vertices.size());
+
+    // Apply bone transformation to each vertex position, leaving texture coordinates intact
+    for (size_t i = 0; i < vertices.size() / 5; i++) {
+        glm::vec4 vertex(vertices[i * 5], vertices[i * 5 + 1], vertices[i * 5 + 2], 1.0f);
+        glm::vec4 animatedVertex = vertex;
+
+        // Apply each bone's transformation
+        for (size_t j = 0; j < skeleton.getBones().size(); j++) {
+            const Bone& bone = skeleton.getBones()[j];
+            glm::mat4 boneTransform = currentKeyframe.boneTransforms[j];
+            animatedVertex += boneTransform * vertex;
+        }
+
+        // Update animated vertex position only (leave texture coordinates unchanged)
+        animatedVertices[i * 5] = animatedVertex.x;
+        animatedVertices[i * 5 + 1] = animatedVertex.y;
+        animatedVertices[i * 5 + 2] = animatedVertex.z;
+        animatedVertices[i * 5 + 3] = vertices[i * 5 + 3]; // texCoord X
+        animatedVertices[i * 5 + 4] = vertices[i * 5 + 4]; // texCoord Y
+    }
+
+    // Update VBO with animated vertices
+    glBindBuffer(GL_ARRAY_BUFFER, VBO);
+    glBufferSubData(GL_ARRAY_BUFFER, 0, animatedVertices.size() * sizeof(float), animatedVertices.data());
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    // Le VBO est maintenant mis à jour et prêt pour le rendu
+}
+
+void Model::setAnimation(const std::string& animationName)
+{
+    currentAnimation = animations.find(animationName)->second;
+
 }
 
 // Méthodes pour ajouter à la position, rotation, et échelle
@@ -388,6 +453,24 @@ void Model::loadVertices(const std::string& filePath) {
     }*/
 }
 
+void Model::loadSkeleton(const string& meshFilePath)
+{
+    skeleton.loadFromFile(meshFilePath);
+}
+void Model::loadAnimation(const string& animFilePath , const string& animationName )
+{
+
+    if(animationName == JUMP_ANIM || animationName == RUN_ANIM || animationName == IDLE_ANIM)
+    {
+
+        animations.emplace(animationName ,new Animation(animFilePath , skeleton));
+    }
+    else
+        std::cout << animationName << " : Ce nom d'animation ne correspond à aucun choix d' animation predefinie pour un character." << std::endl;
+
+
+
+}
 
 const std::string Model::getName() const
 {

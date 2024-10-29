@@ -1,30 +1,29 @@
-#ifndef Skybox_HPP
-#define Skybox_HPP
+// Skybox.h
+#ifndef SKYBOX_H
+#define SKYBOX_H
 
-#include <glm/glm.hpp>
 #include <GL/glew.h>
-#include <vector>
 #include <string>
+#include <vector>
+#include <stb_image.h>
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
 
 class Skybox {
 public:
-    Skybox(float planetRadius, float atmosphereRadius);
-    void init();
-    void draw(const glm::mat4& view, const glm::mat4& projection, const glm::vec3& sunDirection);
+    Skybox(const std::vector<std::string>& faces);
+    ~Skybox();
+
+    void draw( const glm::mat4& view, const glm::mat4& projection);
 
 private:
-    GLuint VAO, VBO;
-    GLuint shaderProgram;
-    GLuint atmosphereColorLoc, viewMatrixLoc, projectionMatrixLoc, sunDirectionLoc;
+    GLuint loadCubemap(const std::vector<std::string>& faces);
+    GLuint skyboxVAO, skyboxVBO;
+    GLuint cubemapTexture;
+    GLuint shaderProgramSkybox;
 
-    float planetRadius;
-    float atmosphereRadius;
-
-    void loadShaders();
-    void createSphere(float radius, int sectors, int stacks);
-    
-    std::vector<float> vertices;  // Stockage des vertices pour la sphère
+    void setupSkybox();
 };
 
 #endif
-
